@@ -90,72 +90,11 @@ print(top_feature_names[1:25])
 
 
 
+### training model with 3 horizons
+# Using the first 731 rows for 1 month ahead
+data_1m <- data[1:731, c(top_25_features, "IR")] 
+# Using the first 729 rows for 3 months ahead
+data_3m <- data[1:729, c(top_25_features, "IR")]  
+# Using the first 720 rows for 12 months ahead
+data_12m <- data[1:720, c(top_25_features, "IR")] 
 
-
-### Run the LASSO Part
-library(glmnet)
-
-# Use PCA
-selected_predictors <- predictors[, top_feature_names[1:25]]
-
-# Run LASSO regression
-lasso_model <- cv.glmnet(as.matrix(selected_predictors), target, alpha = 1)
-
-# Plot cross-validated mean squared error (MSE) versus lambda
-plot(lasso_model)
-
-# Get the optimal lambda value
-optimal_lambda <- lasso_model$lambda.min
-
-# Refit with optimal lambda
-lasso_model_final <- glmnet(as.matrix(selected_predictors), target, alpha = 1)
-lasso_model_predict <- predict(lasso_model_final, s = optimal_lambda, type = "coefficients")[, 1]
-
-# Print coefficients of the final LASSO model
-print(lasso_model_predict)
-
-# Calculate Mean Squared Error (MSE) on the training set
-mse <- mean((lasso_model_predict - target)^2)
-
-# Print MSE
-print(paste("Final MSE on training set:", mse))
-
-# Plot cross-validated mean squared error (MSE) versus lambda
-plot(lasso_model_final)
-
-# Plot the coefficients versus log(lambda)
-plot(lasso_model_final, xvar = "lambda", label = TRUE)
-
-
-
-
-# Use Decision tree
-selected_predictors <- predictors[, top_25_features]
-
-# Run LASSO regression
-lasso_model <- cv.glmnet(as.matrix(selected_predictors), target, alpha = 1)
-
-# Plot cross-validated mean squared error (MSE) versus lambda
-plot(lasso_model)
-
-# Get the optimal lambda value
-optimal_lambda <- lasso_model$lambda.min
-
-# Refit with optimal lambda
-lasso_model_final <- glmnet(as.matrix(selected_predictors), target, alpha = 1)
-lasso_model_predict <- predict(lasso_model_final, s = optimal_lambda, type = "coefficients")[, 1]
-
-# Print coefficients of the final LASSO model
-print(lasso_model_predict)
-
-# Calculate Mean Squared Error (MSE) on the training set
-mse <- mean((lasso_model_predict - target)^2)
-
-# Print MSE
-print(paste("Final MSE on training set:", mse))
-
-# Plot cross-validated mean squared error (MSE) versus lambda
-plot(lasso_model_final)
-
-# Plot the coefficients versus log(lambda)
-plot(lasso_model_final, xvar = "lambda", label = TRUE)

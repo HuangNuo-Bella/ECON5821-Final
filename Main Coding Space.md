@@ -49,8 +49,13 @@ df <- cbind(df0, IR)
 df <- df[, c(1, 207, 2, 3:206)]
 df <- as.data.frame(df)
 
+# Delete the third column (PCE should be excluded now)
+df <- df[, -3]
 library(rpart)
 library(stats)
+
+target <- df[, 2] # IR index
+predictors <- df[, -2] # Exclude the target variable
 
 ## Method 1: Decision tree model with method anova
 tree_model <- rpart(target ~ ., data = predictors, method = "anova")

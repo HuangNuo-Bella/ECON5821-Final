@@ -91,6 +91,15 @@ print(top_feature_names[1:25])
 
 
 ### training model with 3 horizons
+library(dplyr)
+IR[1] <- 0
+df <- cbind(df0, IR)
+df <- df[, c(1, 207, 2, 3:206)]
+df <- as.data.frame(df)
+df <- df[, -3]
+data <- df[, top_25_features]
+data <- cbind(data, IR)
+
 # Using the first 731 rows for 1 month ahead
 data_1m <- data[1:731, c(top_25_features, "IR")] 
 # Using the first 729 rows for 3 months ahead

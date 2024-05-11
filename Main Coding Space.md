@@ -84,3 +84,74 @@ for (i in 1:25) {
 # Print top 25 feature names
 print(top_feature_names[1:25])
 
+
+
+
+
+### Run the LASSO Part
+library(glmnet)
+
+# Use PCA
+selected_predictors <- predictors[, top_feature_names[1:25]]
+
+# Run LASSO regression
+lasso_model <- cv.glmnet(as.matrix(selected_predictors), target, alpha = 1)
+
+# Plot cross-validated mean squared error (MSE) versus lambda
+plot(lasso_model)
+
+# Get the optimal lambda value
+optimal_lambda <- lasso_model$lambda.min
+
+# Refit with optimal lambda
+lasso_model_final <- glmnet(as.matrix(selected_predictors), target, alpha = 1)
+lasso_model_predict <- predict(lasso_model_final, s = optimal_lambda, type = "coefficients")[, 1]
+
+# Print coefficients of the final LASSO model
+print(lasso_model_predict)
+
+# Calculate Mean Squared Error (MSE) on the training set
+mse <- mean((lasso_model_predict - target)^2)
+
+# Print MSE
+print(paste("Final MSE on training set:", mse))
+
+# Plot cross-validated mean squared error (MSE) versus lambda
+plot(lasso_model_final)
+
+# Plot the coefficients versus log(lambda)
+plot(lasso_model_final, xvar = "lambda", label = TRUE)
+
+
+
+
+# Use Decision tree
+selected_predictors <- predictors[, top_25_features]
+
+# Run LASSO regression
+lasso_model <- cv.glmnet(as.matrix(selected_predictors), target, alpha = 1)
+
+# Plot cross-validated mean squared error (MSE) versus lambda
+plot(lasso_model)
+
+# Get the optimal lambda value
+optimal_lambda <- lasso_model$lambda.min
+
+# Refit with optimal lambda
+lasso_model_final <- glmnet(as.matrix(selected_predictors), target, alpha = 1)
+lasso_model_predict <- predict(lasso_model_final, s = optimal_lambda, type = "coefficients")[, 1]
+
+# Print coefficients of the final LASSO model
+print(lasso_model_predict)
+
+# Calculate Mean Squared Error (MSE) on the training set
+mse <- mean((lasso_model_predict - target)^2)
+
+# Print MSE
+print(paste("Final MSE on training set:", mse))
+
+# Plot cross-validated mean squared error (MSE) versus lambda
+plot(lasso_model_final)
+
+# Plot the coefficients versus log(lambda)
+plot(lasso_model_final, xvar = "lambda", label = TRUE)

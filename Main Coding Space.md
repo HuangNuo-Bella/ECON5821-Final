@@ -198,8 +198,9 @@ rmse_1m <- fit_lasso_and_calculate_rmse(data_1m, 1)
 rmse_3m <- fit_lasso_and_calculate_rmse(data_3m, 3)
 rmse_12m <- fit_lasso_and_calculate_rmse(data_12m, 12)
 
-# Print RMSE values
+# Print RMSE values (the results cannot converge, thus, LASSO uses the decision tree feature selection)
 print(paste("RMSE for 1 month ahead:", rmse_1m))
 print(paste("RMSE for 3 months ahead:", rmse_3m))
-print(paste("RMSE for 12 months ahead:", rmse_12m))
+print(paste("RMSE for 12 months ahead:", rmse_12m)) 
+
 

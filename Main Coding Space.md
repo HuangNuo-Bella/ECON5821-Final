@@ -295,3 +295,129 @@ print(ARMAmodel(n3,IR))
 #forcast for y(t+12)
 n12 <- 12
 print(ARMAmodel(n12,IR))
+
+
+
+
+###XGBoost
+## Use features with decision tree 
+library(dplyr)
+IR[1] <- 0
+df <- cbind(df0, IR)
+df <- df[, c(1, 207, 2, 3:206)]
+df <- as.data.frame(df)
+df <- df[, -3]
+data <- df[, top_25_features]
+data <- cbind(data, IR)
+
+# Using the first 731 rows for 1 month ahead
+data_1m <- data[1:731, c(top_25_features, "IR")] 
+# Using the first 729 rows for 3 months ahead
+data_3m <- data[1:729, c(top_25_features, "IR")]
+# Using the first 720 rows for 12 months ahead
+data_12m <- data[1:720, c(top_25_features, "IR")]
+
+# create function to fit model and calculate the MSE
+library(readxl)
+library(xgboost)
+fit_XGBoost_and_calculate_rmse <- function(data, forecast_horizon) {
+  data <- data %>%
+    mutate(lagged_IR = lag(IR, forecast_horizon)) %>%
+    na.omit()
+  X <- as.matrix(data[, top_25_features])
+  y <- data$lagged_IR
+  dtrain <- xgb.DMatrix(data = X, label = y, missing = 0)
+  # Define Parameters for XGBoost
+  params <- list (
+    objective = "reg:squarederror",  #Objective function for regression
+    eval_metric = "rmse",             #Metric to evaluate the model
+    max_depth = 5,                    #Control the depth of each tree
+    eta = 0.05,                       #Learning rate
+    subsample = 0.8,                  #Fraction of data per boosting round
+    colspample_bytree = 0.3           #Fraction of features sampled per tree
+  )
+  #Train the XGBoost Model
+  num_round <- 100                    #Number of boosting rounds
+  
+  XGBst <- xgb.train(
+    params = params,
+    data = dtrain,
+    nrounds = num_round,
+    verbose = 1
+  )
+  #Predict the XGBoost
+  XGBoost_predict <- predict(XGBst, dtrain)
+  rmse <- sqrt(mean((XGBoost_predict - y)^2))
+  return(rmse)
+}
+
+rmse_1m <- fit_XGBoost_and_calculate_rmse(data_1m, 1)
+rmse_3m <- fit_XGBoost_and_calculate_rmse(data_3m, 3)
+rmse_12m <- fit_XGBoost_and_calculate_rmse(data_12m, 12)
+
+# Print RMSE values
+print(paste("RMSE for 1 month ahead:", rmse_1m))
+print(paste("RMSE for 3 months ahead:", rmse_3m))
+print(paste("RMSE for 12 months ahead:", rmse_12m))
+
+
+
+## Use features with PCA (the performance of rmse is worse than decision trees one)
+library(dplyr)
+IR[1] <- 0
+df <- cbind(df0, IR)
+df <- df[, c(1, 207, 2, 3:206)]
+df <- as.data.frame(df)
+df <- df[, -3]
+data <- df[, top_feature_names[1:25]]
+data <- cbind(data, IR)
+
+# Using the first 731 rows for 1 month ahead
+data_1m <- data[1:731, c(top_feature_names[1:25], "IR")] 
+# Using the first 729 rows for 3 months ahead
+data_3m <- data[1:729, c(top_feature_names[1:25], "IR")]
+# Using the first 720 rows for 12 months ahead
+data_12m <- data[1:720, c(top_feature_names[1:25], "IR")]
+
+# create function to fit model and calculate the MSE
+library(readxl)
+library(xgboost)
+fit_XGBoost_and_calculate_rmse <- function(data, forecast_horizon) {
+  data <- data %>%
+    mutate(lagged_IR = lag(IR, forecast_horizon)) %>%
+    na.omit()
+  X <- as.matrix(data[, top_feature_names[1:25]])
+  y <- data$lagged_IR
+  dtrain <- xgb.DMatrix(data = X, label = y, missing = 0)
+  # Define Parameters for XGBoost
+  params <- list (
+    objective = "reg:squarederror",  #Objective function for regression
+    eval_metric = "rmse",             #Metric to evaluate the model
+    max_depth = 5,                    #Control the depth of each tree
+    eta = 0.05,                       #Learning rate
+    subsample = 0.8,                  #Fraction of data per boosting round
+    colspample_bytree = 0.3           #Fraction of features sampled per tree
+  )
+  #Train the XGBoost Model
+  num_round <- 100                    #Number of boosting rounds
+  
+  XGBst <- xgb.train(
+    params = params,
+    data = dtrain,
+    nrounds = num_round,
+    verbose = 1
+  )
+  #Predict the XGBoost
+  XGBoost_predict <- predict(XGBst, dtrain)
+  rmse <- sqrt(mean((XGBoost_predict - y)^2))
+  return(rmse)
+}
+
+rmse_1m <- fit_XGBoost_and_calculate_rmse(data_1m, 1)
+rmse_3m <- fit_XGBoost_and_calculate_rmse(data_3m, 3)
+rmse_12m <- fit_XGBoost_and_calculate_rmse(data_12m, 12)
+
+# Print RMSE values
+print(paste("RMSE for 1 month ahead:", rmse_1m))
+print(paste("RMSE for 3 months ahead:", rmse_3m))
+print(paste("RMSE for 12 months ahead:", rmse_12m))

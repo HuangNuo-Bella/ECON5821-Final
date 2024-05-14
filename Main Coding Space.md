@@ -144,11 +144,13 @@ rmse_12m_LASSO <- fit_lasso_and_calculate_rmse(data_12m_LASSO, 12)
 
 
 # Print RMSE values
-print(paste("RMSE for 1 month ahead:", rmse_1m_LASSO))
-print(paste("RMSE for 3 months ahead:", rmse_3m_LASSO))
-print(paste("RMSE for 12 months ahead:", rmse_12m_LASSO))
+print(paste("RMSE of LASSO method for 1 month ahead:", rmse_1m_LASSO))
+print(paste("RMSE of LASSO method for 3 months ahead:", rmse_3m_LASSO))
+print(paste("RMSE of LASSO method for 12 months ahead:", rmse_12m_LASSO))
 
-## Use features with PCA (the results cannot converge, thus, LASSO uses the decision tree feature selection)
+
+
+## Use features with PCA (the results cannot converge, thus this method does not use)
 library(dplyr)
 IR[1] <- 0
 df <- cbind(df0, IR)
@@ -292,13 +294,14 @@ print(ARMAmodel(n12,IR))
 
 
 
-###XGBoost
+### XGBoost
 ## Use features with decision tree 
 library(dplyr)
 IR[1] <- 0
 df <- cbind(df0, IR)
 df <- df[, c(1, 207, 2, 3:206)]
 df <- as.data.frame(df)
+df <- df[, -3]
 data <- df[, top_25_features]
 data <- cbind(data, IR)
 
@@ -348,9 +351,9 @@ rmse_3m_XGBoost <- fit_XGBoost_and_calculate_rmse(data_3m_XGBoost, 3)
 rmse_12m_XGBoost <- fit_XGBoost_and_calculate_rmse(data_12m_XGBoost, 12)
 
 # Print RMSE values
-print(paste("RMSE for 1 month ahead:", rmse_1m_XGBoost))
-print(paste("RMSE for 3 months ahead:", rmse_3m_XGBoost))
-print(paste("RMSE for 12 months ahead:", rmse_12m_XGBoost))
+print(paste("RMSE of XGBoost method for 1 month ahead:", rmse_1m_XGBoost))
+print(paste("RMSE of XGBoost method for 3 months ahead:", rmse_3m_XGBoost))
+print(paste("RMSE of XGBoost method for 12 months ahead:", rmse_12m_XGBoost))
 
 
 

@@ -415,3 +415,101 @@ rmse_12m <- fit_XGBoost_and_calculate_rmse(data_12m, 12)
 print(paste("RMSE for 1 month ahead:", rmse_1m))
 print(paste("RMSE for 3 months ahead:", rmse_3m))
 print(paste("RMSE for 12 months ahead:", rmse_12m))
+
+### rf
+logdf1 <- na.omit(logdf)  
+head(logdf1)
+
+install.packages("randomForest")  
+library(randomForest)  
+
+df <- na.omit(df)  
+y <- df$IR    
+x <- df[, !names(df) %in% "IR", drop = FALSE]  # 确保x是数据框  
+  
+  
+rf_model <- randomForest(x, y, importance = TRUE, ntree = 500)  
+importance <- importance(rf_model)  
+var_importance <- importance[, "IncNodePurity"]  # 或者使用 "MeanDecreaseAccuracy"  
+
+if (length(var_importance) >= 25) {    
+  var_order <- order(var_importance, decreasing = TRUE)   
+  top_25_var_names <- names(x)[var_order[1:25]]  
+  print(top_25_var_names)  
+} else {  
+  print("数据集中没有足够的特征来获取前25个最重要的特征。")  
+}
+df25$IR <- df$IR
+head(df25)
+
+#测试集 与 训练集 （按每个月）
+# 1 month  
+train_set1 <- df25[1:731, ]  
+test_set1 <- df25[732:nrow(df), ]  
+head(train_set1)  
+head(test_set1)
+
+# 3 month  
+train_set2 <- df25[1:729, ]  
+test_set2 <- df25[730:nrow(df), ]  
+head(train_set2)  
+head(test_set2)
+
+# 12 month  
+train_set3 <- df25[1:720, ]  
+test_set3 <- df25[721:nrow(df), ]  
+head(train_set3)  
+head(test_set3)
+
+# month 1
+X_train1 <- train_set1[, -which(names(train_set) %in% "IR")] 
+y_train1 <- train_set1$IR  
+X_test1 <- test_set1[, names(X_train1)]
+
+X_train1 <- na.omit(X_train1)  
+y_train1 <- na.omit(y_train1)
+
+rf_model1 <- randomForest(X_train1, y_train1, importance = TRUE, ntree = 500)
+y_pred1 <- predict(rf_model1, X_test1)
+
+mse1 <- mean((y_pred1 - test_set1$IR)^2)  
+mae1 <- mean(abs(y_pred1 - test_set1$IR))  
+  
+# 打印评估结果  
+cat("Mean Squared Error (MSE):", mse1, "\n")  
+cat("Mean Absolute Error (MAE):", mae1, "\n")
+
+# month 3
+X_train2 <- train_set2[, -which(names(train_set) %in% "IR")] 
+y_train2 <- train_set2$IR  
+X_test2 <- test_set2[, names(X_train2)]
+X_train2 <- na.omit(X_train2)  
+y_train2 <- na.omit(y_train2)
+rf_model2 <- randomForest(X_train2, y_train2, importance = TRUE, ntree = 500)
+y_pred2 <- predict(rf_model2, X_test2)
+ 
+mse2 <- mean((y_pred2 - test_set2$IR)^2)  
+mae2 <- mean(abs(y_pred2 - test_set2$IR))  
+# 打印评估结果  
+cat("Mean Squared Error (MSE):", mse2, "\n")  
+cat("Mean Absolute Error (MAE):", mae2, "\n")
+
+# month 12
+X_train3 <- train_set3[, -which(names(train_set) %in% "IR")]
+y_train3 <- train_set3$IR  
+ 
+X_test3 <- test_set3[, names(X_train3)] 
+X_train3 <- na.omit(X_train3)  
+y_train3 <- na.omit(y_train3)
+rf_model3 <- randomForest(X_train3, y_train3, importance = TRUE, ntree = 500)
+y_pred3 <- predict(rf_model3, X_test3)
+
+mse3 <- mean((y_pred3 - test_set3$IR)^2)  
+mae3 <- mean(abs(y_pred3 - test_set3$IR))  
+  
+# 打印评估结果  
+cat("Mean Squared Error (MSE):", mse3, "\n")  
+cat("Mean Absolute Error (MAE):", mae3, "\n")
+
+
+

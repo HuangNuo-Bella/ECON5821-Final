@@ -98,14 +98,6 @@ data <- df[, top_25_features] #Decision tree
 #data <- df[, top_feature_names[1:25]] if use the PCA
 data <- cbind(data, IR)
 
-# Using the first 731 rows for 1 month ahead
-data_1m <- data[1:731, c(top_25_features, "IR")] 
-# Using the first 729 rows for 3 months ahead
-data_3m <- data[1:729, c(top_25_features, "IR")]  
-# Using the first 720 rows for 12 months ahead
-data_12m <- data[1:720, c(top_25_features, "IR")] 
-
-
 
 
 
@@ -121,11 +113,11 @@ data <- df[, top_25_features]
 data <- cbind(data, IR)
 
 # Using the first 731 rows for 1 month ahead
-data_1m <- data[1:731, c(top_25_features, "IR")] 
+data_1m_LASSO <- data[1:731, c(top_25_features, "IR")] 
 # Using the first 729 rows for 3 months ahead
-data_3m <- data[1:729, c(top_25_features, "IR")]
+data_3m_LASSO <- data[1:729, c(top_25_features, "IR")]
 # Using the first 720 rows for 12 months ahead
-data_12m <- data[1:720, c(top_25_features, "IR")]
+data_12m_LASSO <- data[1:720, c(top_25_features, "IR")]
 
 # create function to fit model and calculate the MSE
 library(glmnet)
@@ -146,16 +138,17 @@ fit_lasso_and_calculate_rmse <- function(data, forecast_horizon) {
   return(rmse)
 }
 
-rmse_1m <- fit_lasso_and_calculate_rmse(data_1m, 1)
-rmse_3m <- fit_lasso_and_calculate_rmse(data_3m, 3)
-rmse_12m <- fit_lasso_and_calculate_rmse(data_12m, 12)
+rmse_1m_LASSO <- fit_lasso_and_calculate_rmse(data_1m_LASSO, 1)
+rmse_3m_LASSO <- fit_lasso_and_calculate_rmse(data_3m_LASSO, 3)
+rmse_12m_LASSO <- fit_lasso_and_calculate_rmse(data_12m_LASSO, 12)
+
 
 # Print RMSE values
-print(paste("RMSE for 1 month ahead:", rmse_1m))
-print(paste("RMSE for 3 months ahead:", rmse_3m))
-print(paste("RMSE for 12 months ahead:", rmse_12m))
+print(paste("RMSE for 1 month ahead:", rmse_1m_LASSO))
+print(paste("RMSE for 3 months ahead:", rmse_3m_LASSO))
+print(paste("RMSE for 12 months ahead:", rmse_12m_LASSO))
 
-## Use features with PCA
+## Use features with PCA (the results cannot converge, thus, LASSO uses the decision tree feature selection)
 library(dplyr)
 IR[1] <- 0
 df <- cbind(df0, IR)
@@ -187,8 +180,8 @@ fit_lasso_and_calculate_rmse <- function(data, forecast_horizon) {
   optimal_lambda <- lasso_model$lambda.min
   LASSO_final_model <- glmnet(X, y, alpha = 1, lambda = optimal_lambda)
   LASSO_predict <- predict(LASSO_final_model, newx = X, s = optimal_lambda, type = "response")
-  rmse <- sqrt(mean((LASSO_predict - y)^2))
-  return(rmse)
+  #rmse <- sqrt(mean((LASSO_predict - y)^2))
+  #return(rmse)
 }
 
 rmse_1m <- fit_lasso_and_calculate_rmse(data_1m, 1)
@@ -306,16 +299,15 @@ IR[1] <- 0
 df <- cbind(df0, IR)
 df <- df[, c(1, 207, 2, 3:206)]
 df <- as.data.frame(df)
-df <- df[, -3]
 data <- df[, top_25_features]
 data <- cbind(data, IR)
 
 # Using the first 731 rows for 1 month ahead
-data_1m <- data[1:731, c(top_25_features, "IR")] 
+data_1m_XGBoost <- data[1:731, c(top_25_features, "IR")] 
 # Using the first 729 rows for 3 months ahead
-data_3m <- data[1:729, c(top_25_features, "IR")]
+data_3m_XGBoost <- data[1:729, c(top_25_features, "IR")]
 # Using the first 720 rows for 12 months ahead
-data_12m <- data[1:720, c(top_25_features, "IR")]
+data_12m_XGBoost <- data[1:720, c(top_25_features, "IR")]
 
 # create function to fit model and calculate the MSE
 library(readxl)
@@ -351,14 +343,14 @@ fit_XGBoost_and_calculate_rmse <- function(data, forecast_horizon) {
   return(rmse)
 }
 
-rmse_1m <- fit_XGBoost_and_calculate_rmse(data_1m, 1)
-rmse_3m <- fit_XGBoost_and_calculate_rmse(data_3m, 3)
-rmse_12m <- fit_XGBoost_and_calculate_rmse(data_12m, 12)
+rmse_1m_XGBoost <- fit_XGBoost_and_calculate_rmse(data_1m_XGBoost, 1)
+rmse_3m_XGBoost <- fit_XGBoost_and_calculate_rmse(data_3m_XGBoost, 3)
+rmse_12m_XGBoost <- fit_XGBoost_and_calculate_rmse(data_12m_XGBoost, 12)
 
 # Print RMSE values
-print(paste("RMSE for 1 month ahead:", rmse_1m))
-print(paste("RMSE for 3 months ahead:", rmse_3m))
-print(paste("RMSE for 12 months ahead:", rmse_12m))
+print(paste("RMSE for 1 month ahead:", rmse_1m_XGBoost))
+print(paste("RMSE for 3 months ahead:", rmse_3m_XGBoost))
+print(paste("RMSE for 12 months ahead:", rmse_12m_XGBoost))
 
 
 
@@ -368,7 +360,6 @@ IR[1] <- 0
 df <- cbind(df0, IR)
 df <- df[, c(1, 207, 2, 3:206)]
 df <- as.data.frame(df)
-df <- df[, -3]
 data <- df[, top_feature_names[1:25]]
 data <- cbind(data, IR)
 

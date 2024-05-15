@@ -87,17 +87,6 @@ print(top_feature_names[1:25])
 
 
 
-### training model with 3 horizons
-library(dplyr)
-IR[1] <- 0
-df <- cbind(df0, IR)
-df <- df[, c(1, 207, 2, 3:206)]
-df <- as.data.frame(df)
-df <- df[, -3]
-data <- df[, top_25_features] #Decision tree
-#data <- df[, top_feature_names[1:25]] if use the PCA
-data <- cbind(data, IR)
-
 
 
 

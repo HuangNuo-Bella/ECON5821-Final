@@ -197,7 +197,7 @@ print(paste("RMSE for 12 months ahead:", rmse_12m))
 
 
 
-#AR model
+#AR model 
 library(tseries)
 plot(IR)
 selected_IR <- as.data.frame(IR)
@@ -208,10 +208,8 @@ ts_df <- ts(selected_df)
 #Run the AR(1) first
 ar_model <- ar(ts_df, p <- 1)
 print(ar_model)
-
 #prediction for AR(1)
 pre_IR <- predict(ar_model, n.ahead = 1)
-
 #MSE for AR(1)
 ar_mse <- mean((selected_IR[(nrow(selected_IR)-n+1):nrow(selected_IR), ]-pre_IR$pred)^2)
 
@@ -220,7 +218,6 @@ acf_results <- acf(ts_df, plot = TRUE, lag.max = 20)
 print(acf_results$acf)
 pacf_results <- pacf(ts_df, plot = TRUE, lag.max = 20)
 print(pacf_results$pacf)
-
 #Choose p = 15 according to the PACF
 p <- 15
 
@@ -241,7 +238,6 @@ ARmodel <- function(n, p, data) {
     ar_mse <- mean((data[(nrow(data)-n+1):nrow(data), ]-pre_IR$pred)^2)
     return(ar_mse)
 }
-
 #forcast for y(t+1)
 n1 <- 1
 print(ARmodel(n1,p,IR))
@@ -253,43 +249,44 @@ n12 <- 12
 print(ARmodel(n12,p,IR))
 
 
-#ARMA model
+#ARIMA model  
+library(forecast)
 #Stationary test
 adf.test(ts_df, alternative = "stationary")
-
 #Pure random test
-Box.test(ts_df, lag = 6)
-Box.test(ts_df, lag = 12)
+Box.test(ts_df, lag = 9)
+Box.test(ts_df, lag = 15)
 
-#ARMA model
+#Run the ARIMA model
 library(forecast)
-arma_model <- auto.arima(ts_df, trace=TRUE)
-print(arma_model)
+arima_model <- auto.arima(ts_df, trace=TRUE)
+print(arima_model)
 
-#ARMA model function
-ARMAmodel <- function(n,data){
+#ARIMA model function
+ARIMAmodel <- function(n,data){
     data <- as.data.frame(data)
     selected_df <- as.matrix(data[2:(nrow(data)-n),])
     ts_df <- ts(selected_df)
-    #ARMA model
-    arma_model <- arima(ts_df, order = c(0,1,3))
-    print(arma_model)
+    #ARIMA model
+    arima_model <- arima(ts_df, order = c(0,1,3))
+    print(arima_model)
     #prediction
-    pre_IR <- predict(arma_model, n.ahead = n)
+    pre_IR <- predict(arima_model, n.ahead = n)
     #MSE
-    arma_mse <- mean((data[(nrow(data)-n+1):nrow(data), ]-pre_IR$pred)^2)
-    return(arma_mse)
+    arima_mse <- mean((data[(nrow(data)-n+1):nrow(data), ]-pre_IR$pred)^2)
+    return(arima_mse)
 }
-
 #forcast for y(t+1)
 n1 <- 1
-print(ARMAmodel(n1,IR))
+print(ARIMAmodel(n1,IR))
 #forcast for y(t+3)
 n3 <- 3
-print(ARMAmodel(n3,IR))
+print(ARIMAmodel(n3,IR))
 #forcast for y(t+12)
 n12 <- 12
-print(ARMAmodel(n12,IR))
+print(ARIMAmodel(n12,IR))
+
+    
 
 
 

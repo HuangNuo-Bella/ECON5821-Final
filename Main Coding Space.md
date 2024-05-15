@@ -414,3 +414,100 @@ print(paste("RMSE for 3 months ahead:", rmse_3m))
 print(paste("RMSE for 12 months ahead:", rmse_12m))
 
 ### rf
+IR[1] <- 0
+df <- cbind(logdf, IR)
+df <- df[, c(1, 207, 2, 3:206)]
+df <- as.data.frame(df)
+head(df)
+
+# omit NA
+df <- na.omit(df)  
+head(df)
+
+install.packages("randomForest")  
+library(randomForest) 
+
+# set x，y
+y <- df$IR    
+x <- df[, !names(df) %in% "IR", drop = FALSE] 
+
+# Train a random forest model 
+rf_model <- randomForest(x, y, importance = TRUE, ntree = 500)  
+  
+# Extract variable importance  
+importance <- importance(rf_model)  
+var_importance <- importance[, "IncNodePurity"]  # 或者使用 "MeanDecreaseAccuracy"  
+
+# Sort variables based on importance 
+var_order <- order(var_importance, decreasing = TRUE)  
+
+if (length(var_importance) >= 25) {  
+  # Get the names of the top 25 most important variables 
+  top_25_var_names <- names(x)[var_order[1:25]]  
+    
+  # Extract rows for these 25 variables from the original dataframe df  
+  df25 <- df[, top_25_var_names, drop = FALSE]  
+    
+  # Print the new dataframe df25  
+  head(df25)  
+} else {  
+  print("数据集中没有足够的特征来获取前25个最重要的特征。")  
+}
+df25$IR <- df$IR
+head(df25)
+
+# Test set and Training set (split by each month)
+# 1 month  
+train_set1 <- df25[1:731, ]  
+test_set1 <- df25[732:nrow(df), ]  
+test_set1 <- na.omit(test_set1) 
+head(train_set1)  
+head(test_set1)
+
+# 3 month  
+train_set2 <- df25[1:729, ]  
+test_set2 <- df25[730:nrow(df), ]  
+head(train_set2)  
+head(test_set2)
+
+# 12 month  
+train_set3 <- df25[1:720, ]  
+test_set3 <- df25[721:nrow(df), ]   
+head(train_set3)  
+head(test_set3)
+
+# rf month 1 
+X_train1 <- train_set1[, -which(names(train_set1) %in% "IR")]   
+y_train1 <- train_set1$IR  
+X_test1 <- test_set1[, names(X_train1)] 
+X_train1 <- na.omit(X_train1)  
+y_train1 <- na.omit(y_train1)
+rf_model1 <- randomForest(X_train1, y_train1, importance = TRUE, ntree = 500)
+y_pred1 <- predict(rf_model1, X_test1)
+mse1 <- mean((y_pred1 - test_set1$IR)^2) 
+
+# rf month 3
+X_train2 <- train_set2[, -which(names(train_set2) %in% "IR")]   
+y_train2 <- train_set2$IR  
+X_test2 <- test_set2[, names(X_train2)] 
+X_train2 <- na.omit(X_train2)  
+y_train2 <- na.omit(y_train2)
+rf_model2 <- randomForest(X_train2, y_train2, importance = TRUE, ntree = 500)
+y_pred2 <- predict(rf_model2, X_test2)
+mse2 <- mean((y_pred2 - test_set2$IR)^2)
+
+# rf month 12
+X_train3 <- train_set3[, -which(names(train_set3) %in% "IR")] 
+y_train3 <- train_set3$IR  
+X_test3 <- test_set3[, names(X_train3)] 
+X_train3 <- na.omit(X_train3)  
+y_train3 <- na.omit(y_train3)
+rf_model3 <- randomForest(X_train3, y_train3, importance = TRUE, ntree = 500)
+y_pred3 <- predict(rf_model3, X_test3)
+mse3 <- mean((y_pred3 - test_set3$IR)^2)  
+mae3 <- mean(abs(y_pred3 - test_set3$IR))  
+
+# Print RMSE values
+cat("Mean Squared Error (MSE1):", mse1, "\n")  
+cat("Mean Squared Error (MSE2):", mse2, "\n")  
+cat("Mean Squared Error (MSE3):", mse3, "\n")  

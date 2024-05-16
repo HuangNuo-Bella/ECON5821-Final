@@ -692,6 +692,6 @@ cat("Mean Squared Error (MSE3) of Random Forest model for 12 month ahead:", mse3
 #Mean Squared Error (MSE3) of Random Forest model for 12 month ahead: 6.652123e-05 
 
 #The best performance (lowest RMSE) among all the models is random forest with 3-month ahead data structure
-#The second-best performance model is AR with 12-month ahead data structure
+#The second-best performance model is ARIMA with 12-month ahead data structure
 
 

@@ -38,6 +38,36 @@ colnames(logdf)[2] = "Inflation rate of month t"
 head(logdf)
 dim(logdf)
 
+###Test data
+test_url <- "https://github.com/zhentaoshi/Econ5821/raw/main/data_example/US_PCE_testing_real.xlsx"
+test_data <- read.xlsx(test_url)
+#reformat the dataframe
+test_df0 = t(test_data)
+colnames(test_df0) = test_df0[1,]
+test_df0 = test_df0[2:nrow(test_df0),]
+test_df0 = apply(test_df0, 2, as.numeric)
+test_df0 = test_df0[, c(2,1,3:206)]
+#check if there is NA
+NAresults <- any(is.na(test_df0))
+#calculate the month inflation rate
+test_IR = test_df0[,2]
+test_IR[1] = 0
+for (i in 2:nrow(test_df0)){
+    test_IR[i] = (log(test_df0[i,2]) - log(test_df0[i-1,2])) * 12
+    }
+#data with x variables
+test_df = cbind(test_df0, "Inflation_rate_of_month_t" = test_IR)
+test_df = test_df[, c(1,207,2,3:206)]
+test_df = test_df[,-3]
+#transform the all variables into log difference
+test_logdf = test_df0
+test_logdf[1,2:ncol(test_logdf)] = 0
+for (i in 2:nrow(test_df0)){
+    test_logdf[i,2:ncol(test_df0)] = (log(test_df0[i,2:ncol(test_df0)]) - log(test_df0[i-1,2:ncol(test_df0)])) * 12
+    }
+#data with x variables of log difference
+colnames(test_logdf)[2] = "Inflation_rate_of_month_t"
+
 
 
 ### Feature selection
@@ -255,6 +285,42 @@ print(ARmodel(n3,p,IR))
 n12 <- 12
 print(ARmodel(n12,p,IR))
 
+#Forcast for AR(1)
+test_IR <- as.data.frame(test_IR)
+#prediction for AR(1)
+pre_IR <- predict(ar_model, n.ahead = 49)
+#MSE for AR(1)
+ar_mse <- mean((test_IR[2:nrow(test_IR), ]-pre_IR$pred)^2)
+print(paste("The MSE for AR(1) model is:", ar_mse))
+
+#Forcast for AR(15)
+#AR model function
+test_ARmodel <- function(n, data) {
+    data <- as.data.frame(data)
+    selected_df <- as.matrix(data[2:(nrow(data)-n),])
+    ts_df <- ts(selected_df)
+    #Examine autocorrelation in data
+    acf_results <- acf(ts_df, plot = FALSE)
+    pacf_results <- pacf(ts_df, plot = FALSE)
+    #AR model
+    ar_model <- ar(ts_df, p=15)
+    #prediction
+    pre_IR <- predict(ar_model, n.ahead = 49)
+    #MSE
+    ar_mse <- mean((test_IR[2:nrow(test_IR), ]-pre_IR$pred)^2)
+    return(paste("The MSE of AR(15) model for ", n, "month ahead:", ar_mse))
+}
+#forcast for y(t+1)
+n1 <- 1
+print(test_ARmodel(n1,IR))
+#forcast for y(t+3)
+n3 <- 3
+print(test_ARmodel(n3,IR))
+#forcast for y(t+12)
+n12 <- 12
+print(test_ARmodel(n12,IR))
+
+
 
 #ARIMA model  
 library(forecast)
@@ -293,6 +359,29 @@ print(ARIMAmodel(n3,IR))
 n12 <- 12
 print(ARIMAmodel(n12,IR))
 
+#Forcast for ARIMA model
+#ARIMA model function
+test_ARIMAmodel <- function(n,data){
+    data <- as.data.frame(data)
+    selected_df <- as.matrix(data[2:(nrow(data)-n),])
+    ts_df <- ts(selected_df)
+    #ARIMA model
+    arima_model <- arima(ts_df, order = c(0,1,3))
+    #prediction
+    pre_IR <- predict(arima_model, n.ahead = 49)
+    #MSE
+    arima_mse <- mean((test_IR[2:nrow(test_IR), ]-pre_IR$pred)^2)
+    return(paste("The MSE of ARIMA model for ", n, "month ahead:", arima_mse))
+}
+#forcast for y(t+1)
+n1 <- 1
+print(test_ARIMAmodel(n1,IR))
+#forcast for y(t+3)
+n3 <- 3
+print(test_ARIMAmodel(n3,IR))
+#forcast for y(t+12)
+n12 <- 12
+print(test_ARIMAmodel(n12,IR))
     
 
 
@@ -538,3 +627,5 @@ mae3 <- mean(abs(y_pred3 - test_set3$IR))
 cat("Mean Squared Error (MSE1):", mse1, "\n")  
 cat("Mean Squared Error (MSE2):", mse2, "\n")  
 cat("Mean Squared Error (MSE3):", mse3, "\n")  
+
+

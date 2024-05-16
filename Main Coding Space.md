@@ -552,7 +552,7 @@ rf_model <- randomForest(x, y, importance = TRUE, ntree = 500)
   
 # Extract variable importance  
 importance <- importance(rf_model)  
-var_importance <- importance[, "IncNodePurity"]  # 或者使用 "MeanDecreaseAccuracy"  
+var_importance <- importance[, "IncNodePurity"] 
 
 # Sort variables based on importance 
 var_order <- order(var_importance, decreasing = TRUE)  
@@ -572,11 +572,32 @@ if (length(var_importance) >= 25) {
 df25$IR <- df$IR
 head(df25)
 
+#add the test set
+test_IR[1] <- 0  
+testdf <- cbind(test_logdf, test_IR)  
+new_order <- c(1, ncol(testdf), 2:(ncol(testdf)-1))
+testdf <- testdf[, new_order]  
+testdf <- as.data.frame(testdf)  
+head(testdf)
+cols_df25 <- names(df25)  
+cols_testdf <- names(testdf)  
+common_cols <- intersect(cols_df25, cols_testdf)  
+testdf1 <- testdf[, common_cols, drop = FALSE]
+testdf1 <- cbind(testdf1, test_IR)  
+head(testdf1)
+
 # Test set and Training set (split by each month)
 # 1 month  
 train_set1 <- df25[1:731, ]  
 test_set1 <- df25[732:nrow(df), ]  
 test_set1 <- na.omit(test_set1) 
+head(train_set1)  
+head(test_set1)
+
+# 1 month_test  
+train_set1 <- df25[1:731, ]
+train_set1 <- train_set1[, -1, drop = FALSE]
+test_set1 <- testdf1
 head(train_set1)  
 head(test_set1)
 
@@ -586,13 +607,27 @@ test_set2 <- df25[730:nrow(df), ]
 head(train_set2)  
 head(test_set2)
 
+# 3 month_test  
+train_set2 <- df25[1:729, ]
+train_set2 <- train_set2[, -1, drop = FALSE]
+test_set2 <- testdf1
+head(train_set2)  
+head(test_set2)
+
 # 12 month  
 train_set3 <- df25[1:720, ]  
 test_set3 <- df25[721:nrow(df), ]   
 head(train_set3)  
 head(test_set3)
 
-# rf month 1 
+# 12 month_test  
+train_set3 <- df25[1:720, ]
+train_set3 <- train_set3[, -1, drop = FALSE]
+test_set3 <- testdf1 
+head(train_set3)  
+head(test_set3)
+
+# rf month 1_test 
 X_train1 <- train_set1[, -which(names(train_set1) %in% "IR")]   
 y_train1 <- train_set1$IR  
 X_test1 <- test_set1[, names(X_train1)] 
@@ -600,9 +635,9 @@ X_train1 <- na.omit(X_train1)
 y_train1 <- na.omit(y_train1)
 rf_model1 <- randomForest(X_train1, y_train1, importance = TRUE, ntree = 500)
 y_pred1 <- predict(rf_model1, X_test1)
-mse1 <- mean((y_pred1 - test_set1$IR)^2) 
+mse1 <- mean((y_pred1 - test_set1$test_IR)^2)  
 
-# rf month 3
+# rf month 3_test
 X_train2 <- train_set2[, -which(names(train_set2) %in% "IR")]   
 y_train2 <- train_set2$IR  
 X_test2 <- test_set2[, names(X_train2)] 
@@ -610,9 +645,9 @@ X_train2 <- na.omit(X_train2)
 y_train2 <- na.omit(y_train2)
 rf_model2 <- randomForest(X_train2, y_train2, importance = TRUE, ntree = 500)
 y_pred2 <- predict(rf_model2, X_test2)
-mse2 <- mean((y_pred2 - test_set2$IR)^2)
+mse2 <- mean((y_pred2 - test_set2$test_IR)^2)
 
-# rf month 12
+# rf month 12_test
 X_train3 <- train_set3[, -which(names(train_set3) %in% "IR")] 
 y_train3 <- train_set3$IR  
 X_test3 <- test_set3[, names(X_train3)] 
@@ -620,8 +655,7 @@ X_train3 <- na.omit(X_train3)
 y_train3 <- na.omit(y_train3)
 rf_model3 <- randomForest(X_train3, y_train3, importance = TRUE, ntree = 500)
 y_pred3 <- predict(rf_model3, X_test3)
-mse3 <- mean((y_pred3 - test_set3$IR)^2)  
-mae3 <- mean(abs(y_pred3 - test_set3$IR))  
+mse3 <- mean((y_pred3 - test_set3$test_IR)^2)  
 
 # Print RMSE values
 cat("Mean Squared Error (MSE1):", mse1, "\n")  

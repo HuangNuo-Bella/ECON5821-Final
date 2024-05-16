@@ -663,7 +663,7 @@ cat("Mean Squared Error (MSE2) of Random Forest model for 3 month ahead:", mse2,
 cat("Mean Squared Error (MSE3) of Random Forest model for 12 month ahead:", mse3, "\n")  
 
 
-### Summary of all models' performances on test set
+# Summary of all models' performances on test set
 #LASSO:
 #"RMSE of LASSO for 1 month ahead: 0.0601901283873304"
 #"RMSE of LASSO for 3 months ahead: 0.0397746234418028"

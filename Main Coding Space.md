@@ -463,9 +463,9 @@ print(paste("RMSE of XGBoost method for 12 months ahead:", rmse_12m_XGBoost))
 #> print(paste("RMSE of XGBoost method for 1 month ahead:", rmse_1m_XGBoost))
 #[1] "RMSE of XGBoost method for 1 month ahead: 0.0754893954232906"
 #> print(paste("RMSE of XGBoost method for 1 month ahead:", rmse_3m_XGBoost))
-#[1] "RMSE of XGBoost method for 1 month ahead: 0.0573682791638804"
+#[1] "RMSE of XGBoost method for 3 month ahead: 0.0573682791638804"
 #> print(paste("RMSE of XGBoost method for 1 month ahead:", rmse_12m_XGBoost))
-#[1] "RMSE of XGBoost method for 1 month ahead: 0.0321883826852214"
+#[1] "RMSE of XGBoost method for 12 month ahead: 0.0321883826852214"
 #the best performance among the XGBoost model is 12 month ahead
 
 
@@ -663,35 +663,35 @@ cat("Mean Squared Error (MSE2) of Random Forest model for 3 month ahead:", mse2,
 cat("Mean Squared Error (MSE3) of Random Forest model for 12 month ahead:", mse3, "\n")  
 
 
-### Summary of all models performances on test set
+### Summary of all models' performances on test set
 #LASSO:
-#> print(paste("RMSE for 1 month ahead:", rmse_1m_LASSO))
-#[1] "RMSE of LASSO for 1 month ahead: 0.0601901283873304"
-#> print(paste("RMSE for 3 months ahead:", rmse_3m_LASSO))
-#[1] "RMSE of LASSO for 3 months ahead: 0.0397746234418028"
-#> print(paste("RMSE for 12 months ahead:", rmse_12m_LASSO))
-#[1] "RMSE of LASSO for 12 months ahead: 0.0368462699837813"
+#"RMSE of LASSO for 1 month ahead: 0.0601901283873304"
+#"RMSE of LASSO for 3 months ahead: 0.0397746234418028"
+#"RMSE of LASSO for 12 months ahead: 0.0368462699837813"
 
 #XGBoost:
-#> print(paste("RMSE of XGBoost method for 1 month ahead:", rmse_1m_XGBoost))
-#[1] "RMSE of XGBoost method for 1 month ahead: 0.0754893954232906"
-#> print(paste("RMSE of XGBoost method for 1 month ahead:", rmse_3m_XGBoost))
-#[1] "RMSE of XGBoost method for 1 month ahead: 0.0573682791638804"
-#> print(paste("RMSE of XGBoost method for 1 month ahead:", rmse_12m_XGBoost))
-#[1] "RMSE of XGBoost method for 1 month ahead: 0.0321883826852214"
+#"RMSE of XGBoost method for 1 month ahead: 0.0754893954232906"
+#"RMSE of XGBoost method for 3 month ahead: 0.0573682791638804"
+#"RMSE of XGBoost method for 12 month ahead: 0.0321883826852214"
 #the best performance among the XGBoost model is 12 month ahead
 
 #AR:
-
+#"The MSE for AR(1) model is: 0.00123579688972586"
+#"The MSE of AR(15) model for  1 month ahead: 0.00123579688972586"
+#"The MSE of AR(15) model for  3 month ahead: 0.00121299782580339"
+#"The MSE of AR(15) model for  12 month ahead: 0.00118492926166789"
 
 #ARIMA:
-
+#"The MSE of ARIMA model for  1 month ahead: 0.00156359428234719"
+#"The MSE of ARIMA model for  3 month ahead: 0.00153234143185042"
+#"The MSE of ARIMA model for  12 month ahead: 0.00144034045369487"
 
 #Random Forest:
 #Mean Squared Error (MSE1) of Random Forest model for 1 month ahead : 7.10339e-05 
 #Mean Squared Error (MSE2) of Random Forest model for 3 month ahead: 6.511956e-05 
 #Mean Squared Error (MSE3) of Random Forest model for 12 month ahead: 6.652123e-05 
 
-#The best performance (lowest RMSE) among all the models is xxx with xx month ahead
+#The best performance (lowest RMSE) among all the models is random forest with 3-month ahead data structure
+#The second-best performance model is AR with 12-month ahead data structure
 
 

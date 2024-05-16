@@ -658,9 +658,9 @@ y_pred3 <- predict(rf_model3, X_test3)
 mse3 <- mean((y_pred3 - test_set3$test_IR)^2)  
 
 # Print RMSE values
-cat("Mean Squared Error (MSE1):", mse1, "\n")  
-cat("Mean Squared Error (MSE2):", mse2, "\n")  
-cat("Mean Squared Error (MSE3):", mse3, "\n")  
+cat("Mean Squared Error (MSE1) of Random Forest model for 1 month ahead :", mse1, "\n")  
+cat("Mean Squared Error (MSE2) of Random Forest model for 3 month ahead:", mse2, "\n")  
+cat("Mean Squared Error (MSE3) of Random Forest model for 12 month ahead:", mse3, "\n")  
 
 
 

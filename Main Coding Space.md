@@ -179,11 +179,11 @@ print(paste("RMSE of LASSO method for 12 months ahead:", rmse_12m_LASSO))
 
 # prediction on test set
 #> print(paste("RMSE for 1 month ahead:", rmse_1m_LASSO))
-#[1] "RMSE for 1 month ahead: 0.0601901283873304"
+#[1] "RMSE of LASSO for 1 month ahead: 0.0601901283873304"
 #> print(paste("RMSE for 3 months ahead:", rmse_3m_LASSO))
-#[1] "RMSE for 3 months ahead: 0.0397746234418028"
+#[1] "RMSE of LASSO for 3 months ahead: 0.0397746234418028"
 #> print(paste("RMSE for 12 months ahead:", rmse_12m_LASSO))
-#[1] "RMSE for 12 months ahead: 0.0368462699837813"
+#[1] "RMSE of LASSO for 12 months ahead: 0.0368462699837813"
 #the best performance among the LASSO is 12 months ahead
 
 
@@ -662,5 +662,36 @@ cat("Mean Squared Error (MSE1) of Random Forest model for 1 month ahead :", mse1
 cat("Mean Squared Error (MSE2) of Random Forest model for 3 month ahead:", mse2, "\n")  
 cat("Mean Squared Error (MSE3) of Random Forest model for 12 month ahead:", mse3, "\n")  
 
+
+### Summary of all models performances on test set
+#LASSO:
+#> print(paste("RMSE for 1 month ahead:", rmse_1m_LASSO))
+#[1] "RMSE of LASSO for 1 month ahead: 0.0601901283873304"
+#> print(paste("RMSE for 3 months ahead:", rmse_3m_LASSO))
+#[1] "RMSE of LASSO for 3 months ahead: 0.0397746234418028"
+#> print(paste("RMSE for 12 months ahead:", rmse_12m_LASSO))
+#[1] "RMSE of LASSO for 12 months ahead: 0.0368462699837813"
+
+#XGBoost:
+#> print(paste("RMSE of XGBoost method for 1 month ahead:", rmse_1m_XGBoost))
+#[1] "RMSE of XGBoost method for 1 month ahead: 0.0754893954232906"
+#> print(paste("RMSE of XGBoost method for 1 month ahead:", rmse_3m_XGBoost))
+#[1] "RMSE of XGBoost method for 1 month ahead: 0.0573682791638804"
+#> print(paste("RMSE of XGBoost method for 1 month ahead:", rmse_12m_XGBoost))
+#[1] "RMSE of XGBoost method for 1 month ahead: 0.0321883826852214"
+#the best performance among the XGBoost model is 12 month ahead
+
+#AR:
+
+
+#ARIMA:
+
+
+#Random Forest:
+#Mean Squared Error (MSE1) of Random Forest model for 1 month ahead : 7.10339e-05 
+#Mean Squared Error (MSE2) of Random Forest model for 3 month ahead: 6.511956e-05 
+#Mean Squared Error (MSE3) of Random Forest model for 12 month ahead: 6.652123e-05 
+
+#The best performance (lowest RMSE) among all the models is xxx with xx month ahead
 
 

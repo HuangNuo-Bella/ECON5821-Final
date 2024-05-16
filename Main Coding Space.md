@@ -101,6 +101,16 @@ df <- df[, -3]
 data <- df[, top_25_features]
 data <- cbind(data, IR)
 
+#add the test set 
+test_IR[1] <- 0
+test_df<- cbind(test_df0, test_IR)
+test_df <- test_df[, c(1, 207, 2, 3:206)]
+test_df <- test_df[, -3]
+test_df <- as.data.frame(test_df)
+test_data <- test_df[, top_25_features]
+test_X <- as.matrix(test_data[, top_25_features])
+test_y <- test_IR
+
 # Using the first 731 rows for 1 month ahead
 data_1m_LASSO <- data[1:731, c(top_25_features, "IR")] 
 # Using the first 729 rows for 3 months ahead
@@ -122,8 +132,8 @@ fit_lasso_and_calculate_rmse <- function(data, forecast_horizon) {
   # Optimal lambda
   optimal_lambda <- lasso_model$lambda.min
   LASSO_final_model <- glmnet(X, y, alpha = 1, lambda = optimal_lambda)
-  LASSO_predict <- predict(LASSO_final_model, newx = X, s = optimal_lambda, type = "response")
-  rmse <- sqrt(mean((LASSO_predict - y)^2))
+  LASSO_predict <- predict(LASSO_final_model, test_X, s = optimal_lambda, type = "response")
+  rmse <- sqrt(mean((LASSO_predict - test_y)^2))
   return(rmse)
 }
 
@@ -137,6 +147,14 @@ print(paste("RMSE of LASSO method for 1 month ahead:", rmse_1m_LASSO))
 print(paste("RMSE of LASSO method for 3 months ahead:", rmse_3m_LASSO))
 print(paste("RMSE of LASSO method for 12 months ahead:", rmse_12m_LASSO))
 
+# prediction on test set
+#> print(paste("RMSE for 1 month ahead:", rmse_1m_LASSO))
+#[1] "RMSE for 1 month ahead: 0.0601901283873304"
+#> print(paste("RMSE for 3 months ahead:", rmse_3m_LASSO))
+#[1] "RMSE for 3 months ahead: 0.0397746234418028"
+#> print(paste("RMSE for 12 months ahead:", rmse_12m_LASSO))
+#[1] "RMSE for 12 months ahead: 0.0368462699837813"
+#the best performance among the LASSO is 12 months ahead
 
 
 ## Use features with PCA (the results cannot converge, thus this method does not use)
@@ -291,6 +309,17 @@ df <- df[, -3]
 data <- df[, top_25_features]
 data <- cbind(data, IR)
 
+#add the test set 
+test_IR[1] <- 0
+test_df<- cbind(test_df0, test_IR)
+test_df <- test_df[, c(1, 207, 2, 3:206)]
+test_df <- test_df[, -3]
+test_df <- as.data.frame(test_df)
+test_data <- test_df[, top_25_features]
+test_X <- as.matrix(test_data[, top_25_features])
+test_y <- test_IR
+test_dtrain <- xgb.DMatrix(data = test_X, label = test_y, missing = 0)
+
 # Using the first 731 rows for 1 month ahead
 data_1m_XGBoost <- data[1:731, c(top_25_features, "IR")] 
 # Using the first 729 rows for 3 months ahead
@@ -327,8 +356,8 @@ fit_XGBoost_and_calculate_rmse <- function(data, forecast_horizon) {
     verbose = 1
   )
   #Predict the XGBoost
-  XGBoost_predict <- predict(XGBst, dtrain)
-  rmse <- sqrt(mean((XGBoost_predict - y)^2))
+  XGBoost_predict <- predict(XGBst, test_dtrain)
+  rmse <- sqrt(mean((XGBoost_predict - test_y)^2))
   return(rmse)
 }
 
@@ -341,9 +370,18 @@ print(paste("RMSE of XGBoost method for 1 month ahead:", rmse_1m_XGBoost))
 print(paste("RMSE of XGBoost method for 3 months ahead:", rmse_3m_XGBoost))
 print(paste("RMSE of XGBoost method for 12 months ahead:", rmse_12m_XGBoost))
 
+# prediction on test set
+#> print(paste("RMSE of XGBoost method for 1 month ahead:", rmse_1m_XGBoost))
+#[1] "RMSE of XGBoost method for 1 month ahead: 0.0754893954232906"
+#> print(paste("RMSE of XGBoost method for 1 month ahead:", rmse_3m_XGBoost))
+#[1] "RMSE of XGBoost method for 1 month ahead: 0.0573682791638804"
+#> print(paste("RMSE of XGBoost method for 1 month ahead:", rmse_12m_XGBoost))
+#[1] "RMSE of XGBoost method for 1 month ahead: 0.0321883826852214"
+#the best performance among the XGBoost model is 12 month ahead
 
 
-## Use features with PCA (the performance of rmse is worse than decision trees one)
+
+## Use features with PCA (the performance of rmse is worse than decision trees one, and we do not use the PCA)
 library(dplyr)
 IR[1] <- 0
 df <- cbind(df0, IR)
